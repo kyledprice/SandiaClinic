@@ -1,4 +1,8 @@
 *
 !.gitignore
+
 !BlinkLED_432/
 !BlinkLED_432/*
+
+!fw/
+!fw/*
