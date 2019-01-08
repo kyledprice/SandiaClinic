@@ -201,35 +201,6 @@ SysTick_Handler(void)
 }
 
 
-
-//****************************************************************************
-//
-// Set the state of the RS232 RTS and DTR signals.  Handshaking is not
-// supported so this request will be ignored.
-//
-////****************************************************************************
-//static void
-//SetControlLineState(unsigned short usState)
-//{
-//}
-//
-////****************************************************************************
-////
-//// Set the communication parameters to use on the UART.
-////
-////****************************************************************************
-//static bool
-//SetLineCoding(tLineCoding *psLineCoding)
-//{
-//    //
-//    //user to enter customized data here
-//    //
-//    //
-//    // Let the caller know if we had a problem or not.
-//    //
-//    return(0);
-//}
-
 //****************************************************************************
 //
 // Get the communication parameters in use on the CDC terminal.
