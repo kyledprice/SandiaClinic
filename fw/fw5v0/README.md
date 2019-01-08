@@ -3,4 +3,4 @@
 
 ---
 
-This is the first iteration of the firmware for the 2018/2019 Sandia National Labs Clinic project for the Unitiversity of Utah
+This is the first iteration of the firmware portion of the 2018/2019 Sandia National Labs Clinic project at the University of Utah. 
