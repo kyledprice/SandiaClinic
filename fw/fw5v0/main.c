@@ -20,6 +20,9 @@
 #include "pinout.h"
 #include "usb_structs.h"
 
+#include "usb_functions.h"
+#include "daq_functions.h"
+
 #endif
 
 //****************************************************************************
@@ -445,9 +448,6 @@ RxHandlerCmd(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgValue,
                 // Indicate that a command has been received.
                 //
                 g_ui32Flags |= COMMAND_RECEIVED;
-
-//                g_pcCmdBuf[ui32CmdIdx] = 0;
-
                 ui32CmdIdx++;
 
             }
@@ -577,12 +577,74 @@ void setup_usb()
 }
 
 
+
+
+/******************************************************
+ *
+ * Helper USB functions
+ *
+ *****************************************************/
+
+/*
+ * Sends the data on send_buff over the usb line. It write length bytes.
+ */
+void usb_send(uint8_t *send_buff, int length) {
+    USBBufferWrite((tUSBBuffer *)&g_psTxBuffer, send_buff, length);
+}
+
+/*
+ * Gets length bytes from the usb buffer and sticks it in get_buff.
+ */
+void usb_get(uint8_t *get_buff, int length) {
+    buff_cpy(g_pcCmdBuf, get_buff, length);
+}
+
+/******************************************************
+ *
+ * Global variables
+ *
+ *****************************************************/
+
+ // the id of the given device
+uint8_t DAQ_ID = 0;
+
+// (signal averaging factor) the number of times to measure on each node
+uint8_t SAF = 0;
+
+// the status of the device (see daq_functions.h)
+uint8_t DAQ_STATUS = 0;
+
+// the value of current to use
+uint8_t CURR_VALUE = 0;
+
+// the current firmware version
+uint8_t FW_VERSION = 0x50;
+
+// the injection pattern
+struct inj_pair inj_pairs[NUM_NODES];
+/**************************************************************************
+ *
+ * Polling (super loop) that handles the main functionality of the system.
+ *
+ **************************************************************************/
+
+
 int main(void) {
     //
     // Main application loop.
     //
     setup_usb();
-    const int packet_size = 5;
+
+    // handshake part a and b
+    int hs1_flag, hs2_flag;
+    hs1_flag = hs2_flag = 0;
+
+    // buffers to hold usb data
+    uint8_t instr_in[MAX_PACKET_SIZE];
+    uint8_t response_out[RESPONSE_SIZE];
+    uint8_t hs_in[HS_SIZE];
+    uint8_t hs_out[HS_SIZE];
+
     while(1)
     {
         //
@@ -595,18 +657,231 @@ int main(void) {
             if(g_ui32Flags & COMMAND_RECEIVED & ~COMMAND_TRANSMIT_COMPLETE)
             {
 
-                //
+                // set interrupt flags
                 g_ui32Flags &= ~COMMAND_RECEIVED & ~COMMAND_TRANSMIT_COMPLETE;
 
+                // add usb data to desired buffer
+                (hs1_flag && hs2_flag) ? usb_get(instr_in, MAX_PACKET_SIZE) : usb_get(hs_in, HS_SIZE);
 
-                //
-                // Send data to host acknowledging the reception of data from host
-                //
-                uint8_t test[packet_size] = {g_pcCmdBuf[0], g_pcCmdBuf[1], g_pcCmdBuf[2], g_pcCmdBuf[3], g_pcCmdBuf[4]};
-                USBBufferWrite((tUSBBuffer *)&g_psTxBuffer, test, packet_size);
+                /* complete handshake:
+                 *     host   -> 0xDE
+                 *     device -> 0xEF
+                 *     host   -> 0xDE
+                 *     device -> 0xEF  */
+                if(!hs1_flag && hs_in[0] == HS1_IN) {
+                    hs_out[0] = HS1_OUT;
+                    usb_send(hs_out, HS_SIZE);
+                    hs1_flag = 1;
+                    continue;
+                }
+                if(!hs2_flag && hs_in[0] == HS2_IN) {
+                    hs_out[0] = HS2_OUT;
+                    usb_send(hs_out, HS_SIZE);
+                    hs2_flag = 1;
+                    continue;
+                }
 
+                // start setting the values for the response packet
+                response_out[RESPONSE_PREFIX] = instr_in[INSTR_PREFIX];
+                response_out[RESPONSE_SUFFIX] = instr_in[INSTR_SUFFIX];
+                response_out[RESPONSE_ID_INDX] = instr_in[INSTR_ID_INDX];
+
+                // data and error have default value of zero
+                response_out[RESPONSE_DATA_MSB] = response_out[RESPONSE_DATA_LSB] = response_out[RESPONSE_ERRORS] = 0;
+
+
+                // need to: check daq id,
+                // begin receiving instructions
+                switch(instr_in[INSTR_PREFIX]){
+                    // daq id has to be set before anything can happen
+                    case ID_SET_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == ID_SET_SUFX) {
+                            DAQ_ID = instr_in[INSTR_ID_INDX];
+                            DAQ_STATUS |= ID_SET;
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host tells the system to reset itself (all except device id)
+                    case SW_DRIVEN_RESET_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == SW_DRIVEN_RESET_SUFX) {
+                            if(DAQ_STATUS & ID_SET) {
+                                DAQ_STATUS = ID_SET;
+                            }
+                            else {
+                                response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                            }
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host requests status of device
+                    case STATUS_GET_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == STATUS_GET_SUFX) {
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                            if (!(DAQ_STATUS & ID_SET)) {
+                                response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                            }
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                     // host requests the firmware version
+                    case FW_VERSION_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == FW_VERSION_SUFX) {
+                           if(DAQ_STATUS & ID_SET) {
+                               response_out[RESPONSE_DATA_LSB] = FW_VERSION;
+                               DAQ_STATUS |= VERSION_RETRIEVED;
+                           }
+                           else {
+                               response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                           }
+                           response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host requests the equivalent resistance of the substrate
+                    case EQUIV_RES_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == EQUIV_RES_SUFX) {
+                           if(DAQ_STATUS & VERSION_RETRIEVED) {
+                               uint16_t equiv_res = 500; // dummy value until we get it working
+                               // equiv_res =  get_equivalent_resistance();
+                               response_out[RESPONSE_DATA_MSB] = equiv_res >> 8; // 0x1
+                               response_out[RESPONSE_DATA_LSB] = equiv_res & 0xFF; // 0xF4
+                               DAQ_STATUS |= RES_RETRIEVED;
+                           }
+                           else {
+                               response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                           }
+                           response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host sets the SAF value
+                    case SAF_SET_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == SAF_SET_SUFX) {
+                           if(DAQ_STATUS & RES_RETRIEVED) {
+                               SAF = instr_in[INSTR_DATA_LSB];
+                               DAQ_STATUS |= SAF_SET;
+                           }
+                           else {
+                               response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                           }
+                           response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host sets current value
+                    case CRNTV_SET_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == CRNTV_SET_SUFX) {
+                            if(DAQ_STATUS & SAF_SET) {
+                                CURR_VALUE = instr_in[INSTR_DATA_LSB];
+                                DAQ_STATUS |= CRNTV_SET;
+                            }
+                            else {
+                                response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                            }
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host sets the injection pattern (the current nodes in order)
+                    case CRNT_PTRN_SET_PRFX:
+                        if (instr_in[INJ_PTRN_SUFFIX] == CRNT_PTRN_SET_SUFX) {
+                            if(DAQ_STATUS & CRNTV_SET) {
+                                uint8_t i;
+                                for (i = 0; i < NUM_NODES; i++) {
+                                    inj_pairs[i].curr = instr_in[i + INJ_PTRN_BIT0];
+                                }
+                                DAQ_STATUS |= CRNT_PTRN_RETRIEVED;
+                            }
+                            else {
+                                response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                            }
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host sets the injection pattern (the ground nodes in order)
+                    case GND_PTRN_SET_PRFX:
+                        if (instr_in[INJ_PTRN_SUFFIX] == GND_PTRN_SET_SUFX) {
+                            if(DAQ_STATUS & CRNT_PTRN_RETRIEVED) {
+                                uint8_t i;
+                                for (i = 0; i < NUM_NODES; i++) {
+                                    inj_pairs[i].gnd = instr_in[i + INJ_PTRN_BIT0];
+                                }
+                                DAQ_STATUS |= GND_PTRN_RETRIEVED;
+                            }
+                            else {
+                                response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                            }
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE);
+                        break;
+                    // host tells the sytem to start taking measurements
+                    case START_MEAS_PRFX:
+                        if (instr_in[INSTR_SUFFIX] == START_MEAS_SUFX) {
+                            if(DAQ_STATUS & GND_PTRN_RETRIEVED) {
+//                              DAQ_STATUS |= GND_PTRN_RETRIEVED; what to set here? just keep the same?
+                                // call measurement function
+                            }
+                            else {
+                                response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
+                            }
+                            response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                        }
+                        else {
+                            response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
+                        }
+                        usb_send(response_out, RESPONSE_SIZE); // send response packet
+                        // send measurement data as well
+                        break;
+                    default:
+                    { //  won't pull in passed the 64th bytes
+                        if(DAQ_STATUS & GND_PTRN_RETRIEVED) {
+                            int i;
+                            uint8_t temp[32];
+                            for (i = 0; i < 32; i++) {
+                                temp[i] = inj_pairs[i].curr;
+                            }
+                            usb_send(temp, 32);
+                            for (i = 0; i < 32; i++) {
+                                temp[i] = inj_pairs[i].gnd;
+                            }
+                            usb_send(temp, 32);
+                        }
+                    }
+
+                }
             }
-
         }
     }
 }
+

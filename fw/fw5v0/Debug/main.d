@@ -67,6 +67,8 @@ main.obj: ../ustdlib.h
 main.obj: /Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/include/stdarg.h
 main.obj: ../pinout.h
 main.obj: ../usb_structs.h
+main.obj: ../usb_functions.h
+main.obj: ../daq_functions.h
 
 ../main.c: 
 /Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/include/stdbool.h: 
@@ -135,3 +137,5 @@ main.obj: ../usb_structs.h
 /Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/include/stdarg.h: 
 ../pinout.h: 
 ../usb_structs.h: 
+../usb_functions.h: 
+../daq_functions.h: 

@@ -11,6 +11,7 @@ ORDERED_OBJS += \
 "./main.obj" \
 "./pinout.obj" \
 "./system_msp432e401y.obj" \
+"./usb_functions.obj" \
 "./usb_structs.obj" \
 "./ustdlib.obj" \
 "./ccs/startup_msp432e401y_ccs.obj" \
@@ -166,8 +167,8 @@ fw_5v0.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "main.obj" "pinout.obj" "system_msp432e401y.obj" "usb_structs.obj" "ustdlib.obj" "ccs/startup_msp432e401y_ccs.obj" 
-	-$(RM) "main.d" "pinout.d" "system_msp432e401y.d" "usb_structs.d" "ustdlib.d" "ccs/startup_msp432e401y_ccs.d" 
+	-$(RM) "main.obj" "pinout.obj" "system_msp432e401y.obj" "usb_functions.obj" "usb_structs.obj" "ustdlib.obj" "ccs/startup_msp432e401y_ccs.obj" 
+	-$(RM) "main.d" "pinout.d" "system_msp432e401y.d" "usb_functions.d" "usb_structs.d" "ustdlib.d" "ccs/startup_msp432e401y_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

@@ -10,6 +10,7 @@ C_SRCS += \
 ../main.c \
 ../pinout.c \
 ../system_msp432e401y.c \
+../usb_functions.c \
 ../usb_structs.c \
 ../ustdlib.c 
 
@@ -17,6 +18,7 @@ C_DEPS += \
 ./main.d \
 ./pinout.d \
 ./system_msp432e401y.d \
+./usb_functions.d \
 ./usb_structs.d \
 ./ustdlib.d 
 
@@ -24,6 +26,7 @@ OBJS += \
 ./main.obj \
 ./pinout.obj \
 ./system_msp432e401y.obj \
+./usb_functions.obj \
 ./usb_structs.obj \
 ./ustdlib.obj 
 
@@ -31,6 +34,7 @@ OBJS__QUOTED += \
 "main.obj" \
 "pinout.obj" \
 "system_msp432e401y.obj" \
+"usb_functions.obj" \
 "usb_structs.obj" \
 "ustdlib.obj" 
 
@@ -38,6 +42,7 @@ C_DEPS__QUOTED += \
 "main.d" \
 "pinout.d" \
 "system_msp432e401y.d" \
+"usb_functions.d" \
 "usb_structs.d" \
 "ustdlib.d" 
 
@@ -45,6 +50,7 @@ C_SRCS__QUOTED += \
 "../main.c" \
 "../pinout.c" \
 "../system_msp432e401y.c" \
+"../usb_functions.c" \
 "../usb_structs.c" \
 "../ustdlib.c" 
 
