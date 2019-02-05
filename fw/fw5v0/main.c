@@ -689,9 +689,32 @@ int main(void) {
                 // data and error have default value of zero
                 response_out[RESPONSE_DATA_MSB] = response_out[RESPONSE_DATA_LSB] = response_out[RESPONSE_ERRORS] = 0;
 
-
-                // need to: check daq id,
-                // begin receiving instructions
+                /* begin receiving instructions
+                 *
+                 * all cases share a similar structure:
+                 *      - verify correct instruction suffix
+                 *      - set the status of system (if it changed)
+                 *      - respond to the host with either the current status or an error
+                 *      - All but ID_SET instruction check that DAQ id is correct (SET_ID must always be first)
+                 *
+                 * instructions must come in in a certain order:
+                 *      1) set DAQ ID
+                 *      2) firmware version query
+                 *      3) equivalent resistance query
+                 *      4) set SAF
+                 *      5) set current value
+                 *      6) set current nodes pattern
+                 *      7) set ground nodes pattern
+                 *      8) start measurements
+                 *
+                 * however, get_status and sw_driven_reset can come at any time (after id has been set).
+                 * furthermore, in the sequence above, instructions cannot occur before any of their proceeding instructions
+                 * but after a given instruction has occurred, that instruction, as well as all of its proceeding instructions,
+                 * are free to recur any number of times
+                 *
+                 * reset instruction reset the system back to a clean state with only a DAQ ID set
+                 *
+                 */
                 switch(instr_in[INSTR_PREFIX]){
                     // daq id has to be set before anything can happen
                     case ID_SET_PRFX:
@@ -707,6 +730,10 @@ int main(void) {
                         break;
                     // host tells the system to reset itself (all except device id)
                     case SW_DRIVEN_RESET_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == SW_DRIVEN_RESET_SUFX) {
                             if(DAQ_STATUS & ID_SET) {
                                 DAQ_STATUS = ID_SET;
@@ -723,6 +750,10 @@ int main(void) {
                         break;
                     // host requests status of device
                     case STATUS_GET_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == STATUS_GET_SUFX) {
                             response_out[RESPONSE_STATUS] = DAQ_STATUS;
                             if (!(DAQ_STATUS & ID_SET)) {
@@ -736,6 +767,10 @@ int main(void) {
                         break;
                      // host requests the firmware version
                     case FW_VERSION_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == FW_VERSION_SUFX) {
                            if(DAQ_STATUS & ID_SET) {
                                response_out[RESPONSE_DATA_LSB] = FW_VERSION;
@@ -753,6 +788,10 @@ int main(void) {
                         break;
                     // host requests the equivalent resistance of the substrate
                     case EQUIV_RES_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == EQUIV_RES_SUFX) {
                            if(DAQ_STATUS & VERSION_RETRIEVED) {
                                uint16_t equiv_res = 500; // dummy value until we get it working
@@ -773,6 +812,10 @@ int main(void) {
                         break;
                     // host sets the SAF value
                     case SAF_SET_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == SAF_SET_SUFX) {
                            if(DAQ_STATUS & RES_RETRIEVED) {
                                SAF = instr_in[INSTR_DATA_LSB];
@@ -790,6 +833,10 @@ int main(void) {
                         break;
                     // host sets current value
                     case CRNTV_SET_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == CRNTV_SET_SUFX) {
                             if(DAQ_STATUS & SAF_SET) {
                                 CURR_VALUE = instr_in[INSTR_DATA_LSB];
@@ -807,6 +854,10 @@ int main(void) {
                         break;
                     // host sets the injection pattern (the current nodes in order)
                     case CRNT_PTRN_SET_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INJ_PTRN_SUFFIX] == CRNT_PTRN_SET_SUFX) {
                             if(DAQ_STATUS & CRNTV_SET) {
                                 uint8_t i;
@@ -827,6 +878,10 @@ int main(void) {
                         break;
                     // host sets the injection pattern (the ground nodes in order)
                     case GND_PTRN_SET_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INJ_PTRN_SUFFIX] == GND_PTRN_SET_SUFX) {
                             if(DAQ_STATUS & CRNT_PTRN_RETRIEVED) {
                                 uint8_t i;
@@ -847,9 +902,12 @@ int main(void) {
                         break;
                     // host tells the sytem to start taking measurements
                     case START_MEAS_PRFX:
+                        if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
+                            response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
+                        }
+                        else
                         if (instr_in[INSTR_SUFFIX] == START_MEAS_SUFX) {
                             if(DAQ_STATUS & GND_PTRN_RETRIEVED) {
-//                              DAQ_STATUS |= GND_PTRN_RETRIEVED; what to set here? just keep the same?
                                 // call measurement function
                             }
                             else {
@@ -864,21 +922,11 @@ int main(void) {
                         // send measurement data as well
                         break;
                     default:
-                    { //  won't pull in passed the 64th bytes
-                        if(DAQ_STATUS & GND_PTRN_RETRIEVED) {
-                            int i;
-                            uint8_t temp[32];
-                            for (i = 0; i < 32; i++) {
-                                temp[i] = inj_pairs[i].curr;
-                            }
-                            usb_send(temp, 32);
-                            for (i = 0; i < 32; i++) {
-                                temp[i] = inj_pairs[i].gnd;
-                            }
-                            usb_send(temp, 32);
-                        }
+                    {
+                        // the instruction prefix wasn't recognized
+                        response_out[RESPONSE_ERRORS] = INVALID_INST_PFX;
+                        usb_send(response_out, RESPONSE_SIZE);
                     }
-
                 }
             }
         }
