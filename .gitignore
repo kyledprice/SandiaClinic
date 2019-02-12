@@ -1,9 +1,0 @@
-*
-!.gitignore
-!BlinkLED_432/
-!BlinkLED_432/*
-
-!fw/
-!fw/*
-!fw/fw_5v0/
-!fw/fw_5v0/*
