@@ -512,8 +512,12 @@ void setup_usb()
     //
     // Run from the PLL at 120 MHz.
     //
-    g_ui32SysClock = MAP_SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
-                                             SYSCTL_OSC_MAIN |
+//    g_ui32SysClock = MAP_SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
+//                                             SYSCTL_OSC_MAIN |
+//                                             SYSCTL_USE_PLL |
+//                                             SYSCTL_CFG_VCO_480), 120000000);
+
+    g_ui32SysClock = MAP_SysCtlClockFreqSet((SYSCTL_OSC_INT |
                                              SYSCTL_USE_PLL |
                                              SYSCTL_CFG_VCO_480), 120000000);
 
@@ -556,7 +560,8 @@ void setup_usb()
     //
     // Tell the USB library the CPU clock and the PLL frequency.
     //
-    SysCtlVCOGet(SYSCTL_XTAL_25MHZ, &ui32PLLRate);
+//    SysCtlVCOGet(SYSCTL_XTAL_25MHZ, &ui32PLLRate);
+    ui32PLLRate = 240000000;
     USBDCDFeatureSet(0, USBLIB_FEATURE_CPUCLK, &g_ui32SysClock);
     USBDCDFeatureSet(0, USBLIB_FEATURE_USBPLL, &ui32PLLRate);
 
