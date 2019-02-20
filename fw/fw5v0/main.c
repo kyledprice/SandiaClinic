@@ -869,7 +869,7 @@ int main(void) {
                                 for (i = 0; i < NUM_NODES; i++) {
                                     inj_pairs[i].curr = instr_in[i + INJ_PTRN_BIT0];
                                 }
-                                DAQ_STATUS |= CRNT_PTRN_RETRIEVED;
+                                DAQ_STATUS |= CRNT_PTRN_SET;
                             }
                             else {
                                 response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
@@ -888,12 +888,12 @@ int main(void) {
                         }
                         else
                         if (instr_in[INJ_PTRN_SUFFIX] == GND_PTRN_SET_SUFX) {
-                            if(DAQ_STATUS & CRNT_PTRN_RETRIEVED) {
+                            if(DAQ_STATUS & CRNT_PTRN_SET) {
                                 uint8_t i;
                                 for (i = 0; i < NUM_NODES; i++) {
                                     inj_pairs[i].gnd = instr_in[i + INJ_PTRN_BIT0];
                                 }
-                                DAQ_STATUS |= GND_PTRN_RETRIEVED;
+                                DAQ_STATUS |= GND_PTRN_SET;
                             }
                             else {
                                 response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
@@ -912,7 +912,7 @@ int main(void) {
                         }
                         else
                         if (instr_in[INSTR_SUFFIX] == START_MEAS_SUFX) {
-                            if(DAQ_STATUS & GND_PTRN_RETRIEVED) {
+                            if(DAQ_STATUS & GND_PTRN_SET) {
                                 // call measurement function
                             }
                             else {

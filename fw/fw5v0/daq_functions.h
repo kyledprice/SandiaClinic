@@ -20,8 +20,8 @@
 #define RES_RETRIEVED           0x04
 #define SAF_SET                 0x08
 #define CRNTV_SET               0x10
-#define CRNT_PTRN_RETRIEVED     0x20
-#define GND_PTRN_RETRIEVED      0x40
+#define CRNT_PTRN_SET           0x20
+#define GND_PTRN_SET            0x40
 
 /************************************************************
 * DAQ constants
