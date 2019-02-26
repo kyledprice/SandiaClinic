@@ -1,0 +1,406 @@
+******************************************************************************
+                  TI ARM Linker PC v18.1.2                     
+******************************************************************************
+>> Linked Fri Sep  7 11:48:11 2018
+
+OUTPUT FILE NAME:   <BlinkLED_MSP432.out>
+ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 000004dd
+
+
+MEMORY CONFIGURATION
+
+         name            origin    length      used     unused   attr    fill
+----------------------  --------  ---------  --------  --------  ----  --------
+  FLASH                 00000000   00100000  00000550  000ffab0  R  X
+  SRAM                  20000000   00040000  00000204  0003fdfc  RW X
+
+
+SEGMENT ALLOCATION MAP
+
+run origin  load origin   length   init length attrs members
+----------  ----------- ---------- ----------- ----- -------
+00000000    00000000    00000550   00000550    r-x
+  00000000    00000000    00000208   00000208    r-- .intvecs
+  00000208    00000208    00000330   00000330    r-x .text
+  00000538    00000538    00000018   00000018    r-- .cinit
+20000000    20000000    00000204   00000000    rw-
+  20000000    20000000    00000200   00000000    rw- .stack
+  20000200    20000200    00000004   00000000    rw- .data
+
+
+SECTION ALLOCATION MAP
+
+ output                                  attributes/
+section   page    origin      length       input sections
+--------  ----  ----------  ----------   ----------------
+.intvecs   0    00000000    00000208     
+                  00000000    00000208     startup_msp432e401y_ccs.obj (.intvecs:retain)
+
+.text      0    00000208    00000330     
+                  00000208    0000011c     system_msp432e401y.obj (.text)
+                  00000324    0000009c     rtsv7M4_T_le_v4SPD16_eabi.lib : memcpy_t2.asm.obj (.text)
+                  000003c0    00000070     main.obj (.text)
+                  00000430    00000068     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
+                  00000498    00000044                                   : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit:__TI_auto_init_nobinit_nopinit)
+                  000004dc    00000038                                   : boot_cortex_m.c.obj (.text:_c_int00_noargs:_c_int00_noargs)
+                  00000514    0000000e                                   : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
+                  00000522    0000000e     startup_msp432e401y_ccs.obj (.text)
+                  00000530    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00000534    00000004                                   : exit.c.obj (.text:abort:abort)
+
+.cinit     0    00000538    00000018     
+                  00000538    00000008     (.cinit..data.load) [load image, compression = lzss]
+                  00000540    00000008     (__TI_handler_table)
+                  00000548    00000008     (__TI_cinit_table)
+
+.init_array 
+*          0    00000000    00000000     UNINITIALIZED
+
+.data      0    20000200    00000004     UNINITIALIZED
+                  20000200    00000004     system_msp432e401y.obj (.data)
+
+.stack     0    20000000    00000200     UNINITIALIZED
+                  20000000    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.stack)
+                  20000004    000001fc     --HOLE--
+
+MODULE SUMMARY
+
+       Module                        code   ro data   rw data
+       ------                        ----   -------   -------
+    .\
+       startup_msp432e401y_ccs.obj   14     520       0      
+       system_msp432e401y.obj        284    0         4      
+       main.obj                      112    0         0      
+    +--+-----------------------------+------+---------+---------+
+       Total:                        410    520       4      
+                                                             
+    C:\ti\ccsv8\tools\compiler\ti-cgt-arm_18.1.2.LTS\lib\rtsv7M4_T_le_v4SPD16_eabi.lib
+       memcpy_t2.asm.obj             156    0         0      
+       copy_decompress_lzss.c.obj    104    0         0      
+       autoinit.c.obj                68     0         0      
+       boot_cortex_m.c.obj           56     0         0      
+       copy_decompress_none.c.obj    14     0         0      
+       exit.c.obj                    4      0         0      
+       pre_init.c.obj                4      0         0      
+    +--+-----------------------------+------+---------+---------+
+       Total:                        406    0         0      
+                                                             
+       Stack:                        0      0         512    
+       Linker Generated:             0      24        0      
+    +--+-----------------------------+------+---------+---------+
+       Grand Total:                  816    544       516    
+
+
+LINKER GENERATED COPY TABLES
+
+__TI_cinit_table @ 00000548 records: 1, size/record: 8, table size: 8
+	.data: load addr=00000538, load size=00000008 bytes, run addr=20000200, run size=00000004 bytes, compression=lzss
+
+
+LINKER GENERATED HANDLER TABLE
+
+__TI_handler_table @ 00000540 records: 2, size/record: 4, table size: 8
+	index: 0, handler: __TI_decompress_lzss
+	index: 1, handler: __TI_decompress_none
+
+
+GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
+
+address   name                          
+-------   ----                          
+0000052f  ADC0SS0_IRQHandler            
+0000052f  ADC0SS1_IRQHandler            
+0000052f  ADC0SS2_IRQHandler            
+0000052f  ADC0SS3_IRQHandler            
+0000052f  ADC1SS0_IRQHandler            
+0000052f  ADC1SS1_IRQHandler            
+0000052f  ADC1SS2_IRQHandler            
+0000052f  ADC1SS3_IRQHandler            
+0000052f  AES0_IRQHandler               
+0000052f  BusFault_Handler              
+00000535  C$$EXIT                       
+0000052f  CAN0_IRQHandler               
+0000052f  CAN1_IRQHandler               
+0000052f  COMP0_IRQHandler              
+0000052f  COMP1_IRQHandler              
+0000052f  COMP2_IRQHandler              
+0000052f  DES0_IRQHandler               
+0000052f  DebugMon_Handler              
+0000052f  Default_Handler               
+0000052f  EMAC0_IRQHandler              
+0000052f  EPI0_IRQHandler               
+0000052f  FLASH_IRQHandler              
+0000052f  GPIOA_IRQHandler              
+0000052f  GPIOB_IRQHandler              
+0000052f  GPIOC_IRQHandler              
+0000052f  GPIOD_IRQHandler              
+0000052f  GPIOE_IRQHandler              
+0000052f  GPIOF_IRQHandler              
+0000052f  GPIOG_IRQHandler              
+0000052f  GPIOH_IRQHandler              
+0000052f  GPIOJ_IRQHandler              
+0000052f  GPIOK_IRQHandler              
+0000052f  GPIOL_IRQHandler              
+0000052f  GPIOM_IRQHandler              
+0000052f  GPION_IRQHandler              
+0000052f  GPIOP0_IRQHandler             
+0000052f  GPIOP1_IRQHandler             
+0000052f  GPIOP2_IRQHandler             
+0000052f  GPIOP3_IRQHandler             
+0000052f  GPIOP4_IRQHandler             
+0000052f  GPIOP5_IRQHandler             
+0000052f  GPIOP6_IRQHandler             
+0000052f  GPIOP7_IRQHandler             
+0000052f  GPIOQ0_IRQHandler             
+0000052f  GPIOQ1_IRQHandler             
+0000052f  GPIOQ2_IRQHandler             
+0000052f  GPIOQ3_IRQHandler             
+0000052f  GPIOQ4_IRQHandler             
+0000052f  GPIOQ5_IRQHandler             
+0000052f  GPIOQ6_IRQHandler             
+0000052f  GPIOQ7_IRQHandler             
+0000052f  HIBERNATE_IRQHandler          
+0000052f  HardFault_Handler             
+0000052f  I2C0_IRQHandler               
+0000052f  I2C1_IRQHandler               
+0000052f  I2C2_IRQHandler               
+0000052f  I2C3_IRQHandler               
+0000052f  I2C4_IRQHandler               
+0000052f  I2C5_IRQHandler               
+0000052f  I2C6_IRQHandler               
+0000052f  I2C7_IRQHandler               
+0000052f  I2C8_IRQHandler               
+0000052f  I2C9_IRQHandler               
+0000052f  MemManage_Handler             
+0000052f  NMI_Handler                   
+0000052f  PWM0_0_IRQHandler             
+0000052f  PWM0_1_IRQHandler             
+0000052f  PWM0_2_IRQHandler             
+0000052f  PWM0_3_IRQHandler             
+0000052f  PWM0_FAULT_IRQHandler         
+0000052f  PendSV_Handler                
+0000052f  QEI0_IRQHandler               
+00000523  Reset_Handler                 
+0000052f  SHA0_IRQHandler               
+0000052f  SSI0_IRQHandler               
+0000052f  SSI1_IRQHandler               
+0000052f  SSI2_IRQHandler               
+0000052f  SSI3_IRQHandler               
+0000052f  SVC_Handler                   
+0000052f  SYSCTL_IRQHandler             
+0000052f  SYSEXC_IRQHandler             
+0000052f  SysTick_Handler               
+20000200  SystemCoreClock               
+00000209  SystemCoreClockUpdate         
+000002f7  SystemInit                    
+0000052f  TAMPER0_IRQHandler            
+0000052f  TIMER0A_IRQHandler            
+0000052f  TIMER0B_IRQHandler            
+0000052f  TIMER1A_IRQHandler            
+0000052f  TIMER1B_IRQHandler            
+0000052f  TIMER2A_IRQHandler            
+0000052f  TIMER2B_IRQHandler            
+0000052f  TIMER3A_IRQHandler            
+0000052f  TIMER3B_IRQHandler            
+0000052f  TIMER4A_IRQHandler            
+0000052f  TIMER4B_IRQHandler            
+0000052f  TIMER5A_IRQHandler            
+0000052f  TIMER5B_IRQHandler            
+0000052f  TIMER6A_IRQHandler            
+0000052f  TIMER6B_IRQHandler            
+0000052f  TIMER7A_IRQHandler            
+0000052f  TIMER7B_IRQHandler            
+0000052f  UART0_IRQHandler              
+0000052f  UART1_IRQHandler              
+0000052f  UART2_IRQHandler              
+0000052f  UART3_IRQHandler              
+0000052f  UART4_IRQHandler              
+0000052f  UART5_IRQHandler              
+0000052f  UART6_IRQHandler              
+0000052f  UART7_IRQHandler              
+0000052f  UDMAERR_IRQHandler            
+0000052f  UDMA_IRQHandler               
+0000052f  USB0_IRQHandler               
+0000052f  UsageFault_Handler            
+0000052f  WATCHDOG_IRQHandler           
+20000200  __STACK_END                   
+00000200  __STACK_SIZE                  
+20000200  __STACK_TOP                   
+00000548  __TI_CINIT_Base               
+00000550  __TI_CINIT_Limit              
+00000540  __TI_Handler_Table_Base       
+00000548  __TI_Handler_Table_Limit      
+00000499  __TI_auto_init_nobinit_nopinit
+00000431  __TI_decompress_lzss          
+00000515  __TI_decompress_none          
+ffffffff  __TI_pprof_out_hndl           
+ffffffff  __TI_prof_data_size           
+ffffffff  __TI_prof_data_start          
+00000000  __TI_static_base__            
+00000325  __aeabi_memcpy                
+00000325  __aeabi_memcpy4               
+00000325  __aeabi_memcpy8               
+ffffffff  __binit__                     
+ffffffff  __c_args__                    
+UNDEFED   __mpu_init                    
+20000000  __stack                       
+000004dd  _c_int00_noargs               
+UNDEFED   _system_post_cinit            
+00000531  _system_pre_init              
+00000535  abort                         
+ffffffff  binit                         
+00000000  interruptVectors              
+000003c1  main                          
+00000325  memcpy                        
+
+
+GLOBAL SYMBOLS: SORTED BY Symbol Address 
+
+address   name                          
+-------   ----                          
+00000000  __TI_static_base__            
+00000000  interruptVectors              
+00000200  __STACK_SIZE                  
+00000209  SystemCoreClockUpdate         
+000002f7  SystemInit                    
+00000325  __aeabi_memcpy                
+00000325  __aeabi_memcpy4               
+00000325  __aeabi_memcpy8               
+00000325  memcpy                        
+000003c1  main                          
+00000431  __TI_decompress_lzss          
+00000499  __TI_auto_init_nobinit_nopinit
+000004dd  _c_int00_noargs               
+00000515  __TI_decompress_none          
+00000523  Reset_Handler                 
+0000052f  ADC0SS0_IRQHandler            
+0000052f  ADC0SS1_IRQHandler            
+0000052f  ADC0SS2_IRQHandler            
+0000052f  ADC0SS3_IRQHandler            
+0000052f  ADC1SS0_IRQHandler            
+0000052f  ADC1SS1_IRQHandler            
+0000052f  ADC1SS2_IRQHandler            
+0000052f  ADC1SS3_IRQHandler            
+0000052f  AES0_IRQHandler               
+0000052f  BusFault_Handler              
+0000052f  CAN0_IRQHandler               
+0000052f  CAN1_IRQHandler               
+0000052f  COMP0_IRQHandler              
+0000052f  COMP1_IRQHandler              
+0000052f  COMP2_IRQHandler              
+0000052f  DES0_IRQHandler               
+0000052f  DebugMon_Handler              
+0000052f  Default_Handler               
+0000052f  EMAC0_IRQHandler              
+0000052f  EPI0_IRQHandler               
+0000052f  FLASH_IRQHandler              
+0000052f  GPIOA_IRQHandler              
+0000052f  GPIOB_IRQHandler              
+0000052f  GPIOC_IRQHandler              
+0000052f  GPIOD_IRQHandler              
+0000052f  GPIOE_IRQHandler              
+0000052f  GPIOF_IRQHandler              
+0000052f  GPIOG_IRQHandler              
+0000052f  GPIOH_IRQHandler              
+0000052f  GPIOJ_IRQHandler              
+0000052f  GPIOK_IRQHandler              
+0000052f  GPIOL_IRQHandler              
+0000052f  GPIOM_IRQHandler              
+0000052f  GPION_IRQHandler              
+0000052f  GPIOP0_IRQHandler             
+0000052f  GPIOP1_IRQHandler             
+0000052f  GPIOP2_IRQHandler             
+0000052f  GPIOP3_IRQHandler             
+0000052f  GPIOP4_IRQHandler             
+0000052f  GPIOP5_IRQHandler             
+0000052f  GPIOP6_IRQHandler             
+0000052f  GPIOP7_IRQHandler             
+0000052f  GPIOQ0_IRQHandler             
+0000052f  GPIOQ1_IRQHandler             
+0000052f  GPIOQ2_IRQHandler             
+0000052f  GPIOQ3_IRQHandler             
+0000052f  GPIOQ4_IRQHandler             
+0000052f  GPIOQ5_IRQHandler             
+0000052f  GPIOQ6_IRQHandler             
+0000052f  GPIOQ7_IRQHandler             
+0000052f  HIBERNATE_IRQHandler          
+0000052f  HardFault_Handler             
+0000052f  I2C0_IRQHandler               
+0000052f  I2C1_IRQHandler               
+0000052f  I2C2_IRQHandler               
+0000052f  I2C3_IRQHandler               
+0000052f  I2C4_IRQHandler               
+0000052f  I2C5_IRQHandler               
+0000052f  I2C6_IRQHandler               
+0000052f  I2C7_IRQHandler               
+0000052f  I2C8_IRQHandler               
+0000052f  I2C9_IRQHandler               
+0000052f  MemManage_Handler             
+0000052f  NMI_Handler                   
+0000052f  PWM0_0_IRQHandler             
+0000052f  PWM0_1_IRQHandler             
+0000052f  PWM0_2_IRQHandler             
+0000052f  PWM0_3_IRQHandler             
+0000052f  PWM0_FAULT_IRQHandler         
+0000052f  PendSV_Handler                
+0000052f  QEI0_IRQHandler               
+0000052f  SHA0_IRQHandler               
+0000052f  SSI0_IRQHandler               
+0000052f  SSI1_IRQHandler               
+0000052f  SSI2_IRQHandler               
+0000052f  SSI3_IRQHandler               
+0000052f  SVC_Handler                   
+0000052f  SYSCTL_IRQHandler             
+0000052f  SYSEXC_IRQHandler             
+0000052f  SysTick_Handler               
+0000052f  TAMPER0_IRQHandler            
+0000052f  TIMER0A_IRQHandler            
+0000052f  TIMER0B_IRQHandler            
+0000052f  TIMER1A_IRQHandler            
+0000052f  TIMER1B_IRQHandler            
+0000052f  TIMER2A_IRQHandler            
+0000052f  TIMER2B_IRQHandler            
+0000052f  TIMER3A_IRQHandler            
+0000052f  TIMER3B_IRQHandler            
+0000052f  TIMER4A_IRQHandler            
+0000052f  TIMER4B_IRQHandler            
+0000052f  TIMER5A_IRQHandler            
+0000052f  TIMER5B_IRQHandler            
+0000052f  TIMER6A_IRQHandler            
+0000052f  TIMER6B_IRQHandler            
+0000052f  TIMER7A_IRQHandler            
+0000052f  TIMER7B_IRQHandler            
+0000052f  UART0_IRQHandler              
+0000052f  UART1_IRQHandler              
+0000052f  UART2_IRQHandler              
+0000052f  UART3_IRQHandler              
+0000052f  UART4_IRQHandler              
+0000052f  UART5_IRQHandler              
+0000052f  UART6_IRQHandler              
+0000052f  UART7_IRQHandler              
+0000052f  UDMAERR_IRQHandler            
+0000052f  UDMA_IRQHandler               
+0000052f  USB0_IRQHandler               
+0000052f  UsageFault_Handler            
+0000052f  WATCHDOG_IRQHandler           
+00000531  _system_pre_init              
+00000535  C$$EXIT                       
+00000535  abort                         
+00000540  __TI_Handler_Table_Base       
+00000548  __TI_CINIT_Base               
+00000548  __TI_Handler_Table_Limit      
+00000550  __TI_CINIT_Limit              
+20000000  __stack                       
+20000200  SystemCoreClock               
+20000200  __STACK_END                   
+20000200  __STACK_TOP                   
+ffffffff  __TI_pprof_out_hndl           
+ffffffff  __TI_prof_data_size           
+ffffffff  __TI_prof_data_start          
+ffffffff  __binit__                     
+ffffffff  __c_args__                    
+ffffffff  binit                         
+UNDEFED   __mpu_init                    
+UNDEFED   _system_post_cinit            
+
+[144 symbols]
