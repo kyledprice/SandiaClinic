@@ -733,7 +733,8 @@ int main(void) {
                         }
                         usb_send(response_out, RESPONSE_SIZE);
                         break;
-                    // host tells the system to reset itself (all except device id)
+                    // host tells the system to reset itself (just back to the point that max
+                    // resistance has been sent)
                     case SW_DRIVEN_RESET_PRFX:
                         if (!(instr_in[INSTR_ID_INDX] == DAQ_ID)) {
                             response_out[RESPONSE_ERRORS] = INVALID_DAQ_ID;
@@ -741,7 +742,7 @@ int main(void) {
                         else
                         if (instr_in[INSTR_SUFFIX] == SW_DRIVEN_RESET_SUFX) {
                             if(DAQ_STATUS & ID_SET) {
-                                DAQ_STATUS = ID_SET;
+                                DAQ_STATUS = ID_SET | RES_RETRIEVED | VERSION_RETRIEVED;
                             }
                             else {
                                 response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
