@@ -2,7 +2,8 @@
  * main.c
  *
  *  Created on: Jan 3, 2019
- *      Author: kyleprice
+ *      Authors: Kyle Price & Skyler Swearnign
+ *      Last Edited: 4/5/19
  */
 
 #ifndef CDC_CODE
@@ -22,6 +23,7 @@
 
 #include "usb_functions.h"
 #include "daq_functions.h"
+
 
 #endif
 
@@ -649,6 +651,11 @@ int main(void) {
     uint8_t response_out[RESPONSE_SIZE];
     uint8_t hs_in[HS_SIZE];
     uint8_t hs_out[HS_SIZE];
+    uint16_t* data[NUM_MEASUREMENTS];
+    uint8_t* data_responce[DATA_RESPONCE_SIZE];
+
+    data_responce[0] = DATA_PRFX;
+    data_responce[DATA_RESPONCE_SIZE - 3] = DATA_SUFX;
 
     while(1)
     {
@@ -915,6 +922,7 @@ int main(void) {
                         if (instr_in[INSTR_SUFFIX] == START_MEAS_SUFX) {
                             if(DAQ_STATUS & GND_PTRN_SET) {
                                 // call measurement function
+                                measure(CURR_VALUE, SAF, data, inj_pairs, g_ui32SysClock);
                             }
                             else {
                                 response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
@@ -924,8 +932,29 @@ int main(void) {
                         else {
                             response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
                         }
+                        // Create the measurements packet
+                        // (may have max size of 128 bytes if so break it into multiple chunks)
+                        // Format PREFIX, Data, SUFIX, DAQID
+                        data_responce[DATA_RESPONCE_SIZE - 2] = DAQ_ID;
+                        int i;
+                        int packet_idx = 1;
+                        uint8_t temp_upper_bits;
+                        uint8_t temp_lower_bits;
+                        for(i = 0; i <= NUM_MEASUREMENTS; i++) {
+                            // Split the data in two parts, upper bits go at i
+                            // lower bits go at i + 1
+                            temp_upper_bits = (uint8_t)((int)data[i] >> 8);
+                            temp_lower_bits = (uint8_t)((int)data[i] & 0x00FF);
+
+                            data_responce[packet_idx] = temp_upper_bits;
+                            data_responce[packet_idx+1] = temp_lower_bits;
+
+                            packet_idx += 2;
+                        }
+
                         usb_send(response_out, RESPONSE_SIZE); // send response packet
                         // send measurement data as well
+                        usb_send(data_responce, DATA_RESPONCE_SIZE);
                         break;
                     default:
                     {

@@ -2,14 +2,20 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-CG_TOOL_ROOT := /Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS
+SHELL = cmd.exe
+
+CG_TOOL_ROOT := C:/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.2.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./adc.obj" \
+"./curr_source_control.obj" \
+"./daq_functions.obj" \
 "./main.obj" \
 "./pinout.obj" \
+"./projection_cont.obj" \
 "./system_msp432e401y.obj" \
 "./usb_functions.obj" \
 "./usb_structs.obj" \
@@ -17,19 +23,13 @@ ORDERED_OBJS += \
 "./ccs/startup_msp432e401y_ccs.obj" \
 "../msp432e401y.cmd" \
 $(GEN_CMDS__FLAG) \
--l"/Applications/ti/simplelink_msp432e4_sdk_2_20_00_20/source/ti/usblib/msp432e4/lib/ccs/m4f/msp432e4_usblib.a" \
--l"ti/display/lib/display.aem4f" \
--l"ti/grlib/lib/ccs/m4f/grlib.a" \
--l"third_party/spiffs/lib/ccs/m4f/spiffs.a" \
--l"ti/drivers/lib/drivers_msp432e4.aem4f" \
--l"third_party/fatfs/lib/ccs/m4f/fatfs.a" \
--l"ti/devices/msp432e4/driverlib/lib/ccs/m4f/msp432e4_driverlib.a" \
--llibc.a \
+-l"C:/ti/simplelink_msp432e4_sdk_2_20_00_20/source/ti/usblib/msp432e4/lib/ccs/m4f/msp432e4_usblib.a" \
+-l"C:/ti/simplelink_msp432e4_sdk_2_20_00_20/source/ti/devices/msp432e4/driverlib/lib/ccs/m4f/msp432e4_driverlib.a" \
 
 -include ../makefile.init
 
-RM := rm -rf
-RMDIR := rm -rf
+RM := DEL /F
+RMDIR := RMDIR /S/Q
 
 # All of the sources participating in the build are defined here
 -include sources.mk
@@ -133,42 +133,42 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-fw_5v0.out \
+fw5.0.out \
 
 EXE_OUTPUTS__QUOTED += \
-"fw_5v0.out" \
+"fw5.0.out" \
 
 BIN_OUTPUTS += \
-fw_5v0.hex \
+fw5.0.hex \
 
 BIN_OUTPUTS__QUOTED += \
-"fw_5v0.hex" \
+"fw5.0.hex" \
 
 
 # All Target
 all: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
-	@$(MAKE) --no-print-directory -Onone "fw_5v0.out"
+	@$(MAKE) --no-print-directory -Onone "fw5.0.out"
 
 # Tool invocations
-fw_5v0.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
+fw5.0.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: ARM Linker'
-	"/Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --advice:power=none --define=DeviceFamily_MSP432E4 --define=__MSP432E401Y__ -g --diag_warning=225 --diag_warning=255 --diag_wrap=off --display_error_number --gen_func_subsections=on -z -m"fw_5v0.map" --stack_size=512 -i"/Applications/ti/simplelink_msp432e4_sdk_2_20_00_20/source" -i"/Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/lib" --diag_wrap=off --display_error_number --warn_sections --xml_link_info="fw_5v0_linkInfo.xml" --rom_model -o "fw_5v0.out" $(ORDERED_OBJS)
+	"C:/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.2.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --advice:power="all" --define=ccs --define=__MSP432E401Y__ -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"fw5.0.map" --heap_size=0 --stack_size=512 -i"C:/ti/ccsv8/ccs_base/arm/include" -i"C:/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.2.LTS/lib" -i"C:/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.2.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="fw5.0_linkInfo.xml" --rom_model -o "fw5.0.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
-fw_5v0.hex: $(EXE_OUTPUTS)
+fw5.0.hex: $(EXE_OUTPUTS)
 	@echo 'Building files: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo 'Invoking: ARM Hex Utility'
-	"/Applications/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.3.LTS/bin/armhex"  -o "fw_5v0.hex" $(EXE_OUTPUTS__QUOTED)
+	"C:/ti/ccsv8/tools/compiler/ti-cgt-arm_18.1.2.LTS/bin/armhex"  -o "fw5.0.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo ' '
 
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "main.obj" "pinout.obj" "system_msp432e401y.obj" "usb_functions.obj" "usb_structs.obj" "ustdlib.obj" "ccs/startup_msp432e401y_ccs.obj" 
-	-$(RM) "main.d" "pinout.d" "system_msp432e401y.d" "usb_functions.d" "usb_structs.d" "ustdlib.d" "ccs/startup_msp432e401y_ccs.d" 
+	-$(RM) "adc.obj" "curr_source_control.obj" "daq_functions.obj" "main.obj" "pinout.obj" "projection_cont.obj" "system_msp432e401y.obj" "usb_functions.obj" "usb_structs.obj" "ustdlib.obj" "ccs\startup_msp432e401y_ccs.obj" 
+	-$(RM) "adc.d" "curr_source_control.d" "daq_functions.d" "main.d" "pinout.d" "projection_cont.d" "system_msp432e401y.d" "usb_functions.d" "usb_structs.d" "ustdlib.d" "ccs\startup_msp432e401y_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
