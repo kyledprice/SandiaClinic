@@ -94,10 +94,13 @@ void gnd_proj_reset() {
  * Set the switches to output the desired node.
  */
 void current_proj_set(uint32_t node) {
+    // TODO Also backwards as all fuck. Try to figure it out.
+    int set_node = node;
+
     GPIOM->DATA &= 0x03;
     GPIOD->DATA &= 0xEF;
     GPIOH->DATA &= 0xF7;
-    switch(node) {
+    switch(set_node) {
         case 1:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
@@ -203,131 +206,134 @@ void current_proj_set(uint32_t node) {
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             break;
         case 18:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x08;
             break;
         case 19:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x10;
             break;
         case 20:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x18;
             break;
         case 21:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x20;
             break;
         case 22:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x28;
             break;
         case 23:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x30;
             break;
         case 24:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x38;
             break;
         case 25:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x40;
             break;
         case 26:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x48;
             break;
         case 27:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x50;
             break;
         case 28:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x58;
             break;
         case 29:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x60;
             break;
         case 30:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x68;
             break;
         case 31:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
+
             GPIOM->DATA |= 0x70;
             break;
         case 32:
             GPIOK->DATA &= 0x8F;
             GPIOM->DATA &= 0x03;
 
-            GPIOH->DATA |= 0x08;
             GPIOM->DATA |= 0x78;
             break;
         default:
             current_proj_reset();
     }
     if(node != 0) {
-        if(node < 17) {
+        if(node > 16) {
+            // Enable lower
             GPIOM->DATA |= 0x04;
         } else {
+            // Enable upper
+            GPIOH->DATA |= 0x08;
             GPIOD->DATA |= 0x10;
         }
 
     }
-
+    GPIOH->DATA |= 0x07;
 }
 
 /*
  * Set the switches to output the desired node.
  */
 void gnd_proj_set(uint32_t node) {
+    // TODO Stuff is backwards as fuck, fix later
     GPIOD->DATA &= 0x3F;
     GPIOK->DATA &= 0x7F;
     switch(node) {
@@ -464,7 +470,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x00;
         break;
     case 18:
@@ -472,7 +477,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x20;
         break;
     case 19:
@@ -480,7 +484,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x10;
         break;
     case 20:
@@ -488,7 +491,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x30;
         break;
     case 21:
@@ -496,7 +498,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x08;
         break;
     case 22:
@@ -504,7 +505,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x28;
         break;
     case 23:
@@ -512,7 +512,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x18;
         break;
     case 24:
@@ -520,7 +519,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x38;
         break;
     case 25:
@@ -528,7 +526,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x04;
         break;
     case 26:
@@ -536,7 +533,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x24;
         break;
     case 27:
@@ -544,7 +540,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x14;
         break;
     case 28:
@@ -552,7 +547,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x34;
         break;
     case 29:
@@ -560,7 +554,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x0D;
         break;
     case 30:
@@ -568,7 +561,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x2D;
         break;
     case 31:
@@ -576,7 +568,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x1D;
         break;
     case 32:
@@ -584,7 +575,6 @@ void gnd_proj_set(uint32_t node) {
         GPIOQ->DATA &= 0xEF;
         GPIOL->DATA &= 0xD3;
 
-        GPIOK->DATA |= 0x80;
         GPIOL->DATA |= 0x3D;
         break;
     default:
@@ -592,9 +582,10 @@ void gnd_proj_set(uint32_t node) {
     }
     if(node != 0) {
         if(node > 16) {
+            // Enable upper
             GPIOD->DATA |= 0x20;
-            GPIOK->DATA |= 0x80;
         } else {
+            // Enable lower
             GPIOD->DATA |= 0x40;
             GPIOK->DATA |= 0x80;
         }

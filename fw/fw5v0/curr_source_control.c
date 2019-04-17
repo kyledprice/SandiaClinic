@@ -113,7 +113,7 @@ void curr_source_init() {
  * Sets up any tens values of micro amps if needed
  */
 void curr_source_set_microtens(uint32_t value){
-    GPIOH->DATA &= 0xF9;
+    GPIOH->DATA &= 0xF8;
     GPIOA->DATA &= 0xF7;
     switch(value) {
         case 1:
@@ -433,9 +433,17 @@ void curr_source_set(uint32_t value) {
         microhundreds = (value - (milliones * 100) - (millitens*1000)) / 10;
         microtens = (value - (milliones * 100) - (millitens*1000) - (microhundreds * 10));
 
-        curr_source_set_microtens(microtens);
-        curr_source_set_microhunds(microhundreds);
-        curr_source_set_milliones(milliones);
-        //curr_source_set_millitens(millitens);
+        if(microtens != 0) {
+            curr_source_set_microtens(microtens);
+        }
+        if(microhundreds != 0) {
+            curr_source_set_microhunds(microhundreds);
+        }
+        if(milliones != 0) {
+            curr_source_set_milliones(milliones);
+        }
+        if(millitens != 0) {
+            curr_source_set_millitens(millitens);
+        }
     }
 }

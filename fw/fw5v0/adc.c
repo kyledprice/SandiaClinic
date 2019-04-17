@@ -256,13 +256,13 @@ uint16_t measure_ADC1() {
     GPIOA->DATA &= 0x7F;
 
     // Hold it low for the time required by ADC. Find a better way to do this
-    SysCtlDelay(1000);
+    SysCtlDelay(1);
 
     // Set the pin back to high.
     GPIOA->DATA |= 0x80;
 
     // Delay while the busy pin is high, for no just add sys delay.
-    SysCtlDelay(10);
+    //SysCtlDelay(100);
     // Read data from ADC rx bus and save to an array.
     SSIDataPut(SSI3_BASE, 0xFFFF);
     // Have to write to send out clock, wait while write is happening
@@ -291,13 +291,13 @@ uint16_t measure_ADC2() {
     GPIOA->DATA &= 0xFD;
 
     // Hold it low for the time required by ADC. Find a better way to do this
-    SysCtlDelay(1000);
+    SysCtlDelay(1);
 
     // Set the pin back to high.
     GPIOA->DATA |= 0x02;
 
     // Delay while the busy pin is high, for no just add sys delay.
-    SysCtlDelay(10);
+    //SysCtlDelay(10);
     // Read data from ADC rx bus and save to an array.
     SSIDataPut(SSI0_BASE, 0xFFFF);
     // Have to write to send out clock, wait while write is happening
@@ -323,13 +323,13 @@ uint16_t measure_ADC3() {
     GPIOP->DATA &= 0xFD;
 
     // Hold it low for the time required by ADC. Find a better way to do this
-    SysCtlDelay(1000);
+    SysCtlDelay(1);
 
     // Set the pin back to high.
     GPIOP->DATA |= 0x02;
 
     // Delay while the busy pin is high, for no just add sys delay.
-    SysCtlDelay(10);
+    //SysCtlDelay(100);
     // Read data from ADC rx bus and save to an array.
     SSIDataPut(SSI1_BASE, 0xFFFF);
     // Have to write to send out clock, wait while write is happening
@@ -356,13 +356,13 @@ uint16_t measure_ADC4() {
     // Write the pin low.
     GPIOQ->DATA &= 0xFD;
     //GPIOPinWrite(GPIO_PORTQ_BASE, GPIO_PIN_2, 0x0);
-    SysCtlDelay(10000);
+    SysCtlDelay(1);
     // Set the pin back to high.
     //GPIOPinWrite(GPIO_PORTQ_BASE, GPIO_PIN_2, 0x1);
     GPIOQ->DATA |= 0x02;
 
     // Wait while the busy pin is high.
-    SysCtlDelay(10);
+    //SysCtlDelay(100);
     //while(!GPIOPinRead(GPIO_PORTD_BASE, GPIO_PIN_1));
     // Read data from ADC rx bus and save to an array.
     SSIDataPut(SSI2_BASE, 0xFFFF);
@@ -579,6 +579,3 @@ void set_ADC_3_4_node(uint32_t node) {
     }
     GPION->DATA |= 0x10;
 }
-
-
-

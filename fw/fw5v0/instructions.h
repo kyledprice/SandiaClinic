@@ -11,15 +11,28 @@
 #ifndef INSTRUCTIONS_H_
 #define INSTRUCTIONS_H_
 
+
+/************************************************************
+* DAQ status codes                                          *
+************************************************************/
+#define NOT_SET                 0x00
+#define ID_SET                  0x01
+#define VERSION_RETRIEVED       0x02
+#define RES_RETRIEVED           0x04
+#define SAF_SET                 0x08
+#define CRNTV_SET               0x10
+#define CRNT_PTRN_SET           0x20
+#define GND_PTRN_SET            0x40
+
 /*
  * The possible statuses for the daq.
  */
 const int NOT_READY = 0x00;
-const int CRNTV_SET = 0x01;
+//const int CRNTV_SET = 0x01;
 const int CRNTN_SET = 0x02;
 const int GRND_SET = 0x04;
 const int DAQID_SET = 0x08;
-const int SAF_SET = 0x10;
+//const int SAF_SET = 0x10;
 const int START_SET = 0x20;
 
 /*

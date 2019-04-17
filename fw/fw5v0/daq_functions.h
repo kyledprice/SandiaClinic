@@ -23,6 +23,7 @@
 #define CRNTV_SET               0x10
 #define CRNT_PTRN_SET           0x20
 #define GND_PTRN_SET            0x40
+#define START_MEAS_RECEIVED     0x80
 
 /************************************************************
 * DAQ constants                                             *
@@ -31,9 +32,9 @@
 #define NUM_MEASUREMENTS        1024
 #define NUM_MEAS_NODES          8
 
-#define ADC1_OFFSET             8
+#define ADC2_OFFSET             8
 #define ADC4_OFFSET             16
-#define ADC3_OFFSET             32
+#define ADC3_OFFSET             24
 
 #define DATA_RESPONCE_SIZE      (NUM_MEASUREMENTS * 2) + 3
 
@@ -43,8 +44,4 @@ struct inj_pair {
     uint8_t gnd;
 };
 
-/************************************************************
-* DAQ functions                                             *
-************************************************************/
-extern void measure(uint8_t curr, uint8_t saf, uint16_t* data, struct inj_pair* inj_pairs, uint32_t sys_clock);
 #endif /* DAQ_FUNCTIONS_H_ */

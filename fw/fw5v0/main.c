@@ -2,8 +2,7 @@
  * main.c
  *
  *  Created on: Jan 3, 2019
- *      Authors: Kyle Price & Skyler Swearnign
- *      Last Edited: 4/5/19
+ *      Author: kyleprice
  */
 
 #ifndef CDC_CODE
@@ -23,7 +22,9 @@
 
 #include "usb_functions.h"
 #include "daq_functions.h"
-
+#include "adc.h"
+#include "projection_cont.h"
+#include "curr_source_control.h"
 
 #endif
 
@@ -625,7 +626,7 @@ uint8_t DAQ_STATUS = 0;
 uint8_t CURR_VALUE = 0;
 
 // the current firmware version
-uint8_t FW_VERSION = 0x50;
+uint8_t FW_VERSION = 0x51;
 
 // the injection pattern
 struct inj_pair inj_pairs[NUM_NODES];
@@ -635,6 +636,178 @@ struct inj_pair inj_pairs[NUM_NODES];
  *
  **************************************************************************/
 
+uint8_t node_conversion(uint8_t node) {
+    switch(node) {
+        case 1:
+            return 17;
+        case 2:
+            return 18;
+        case 3:
+            return 19;
+        case 4:
+            return 20;
+        case 5:
+            return 21;
+        case 6:
+            return 22;
+        case 7:
+            return 23;
+        case 8:
+            return 24;
+        case 9:
+            return 32;
+        case 10:
+            return 31;
+        case 11:
+            return 30;
+        case 12:
+            return 29;
+        case 13:
+            return 28;
+        case 14:
+            return 27;
+        case 15:
+            return 26;
+        case 16:
+            return 25;
+        case 17:
+            return 1;
+        case 18:
+            return 2;
+        case 19:
+            return 3;
+        case 20:
+            return 4;
+        case 21:
+            return 5;
+        case 22:
+            return 6;
+        case 23:
+            return 7;
+        case 24:
+            return 8;
+        case 25:
+            return 16;
+        case 26:
+            return 15;
+        case 27:
+            return 14;
+        case 28:
+            return 13;
+        case 29:
+            return 12;
+        case 30:
+            return 11;
+        case 31:
+            return 10;
+        case 32:
+            return 9;
+        default:
+            return 0;
+    }
+}
+
+
+
+/*
+ * The function that handles all the set up and initialization to run
+ * all the measurements. It will then take all the measurements needed and
+ * store the data on board.
+ * Parameters: curr - The target current value.
+ *             saf - The desired signal averaging factor.
+ *             data - An array where all the results will be stored.
+ *             inj_pairs - The injection pair patterns measurements will be taken in.
+ *             sys_clock - The speed the system clock is running at.
+ */
+void measure(uint8_t saf, uint8_t data[32], struct inj_pair inj_pairs[NUM_NODES]) {
+    int node, meas_node, i, idx1, idx2;
+    uint16_t temp_data1 = 0;
+    uint16_t temp_data2 = 0;
+    uint8_t back_idx = 0;
+    // Perform all the set up needed to call all the functions.
+    proj_init();
+
+    ADC_node_init();
+    configure_ADCs(g_ui32SysClock);
+
+
+    // Start the measurement process.
+    // First loop to switch through the projection patterns.
+    for(node = 0; node < NUM_NODES; node++) {
+        // Send out from usb
+
+        current_proj_set(node_conversion(inj_pairs[node].curr));
+        gnd_proj_set(node_conversion(inj_pairs[node].gnd));
+        // Delay as needed for the current to settle
+        back_idx = 31;
+        // Second loop through all the ADC's measurements
+        for(meas_node = 0; meas_node < NUM_MEAS_NODES*2; meas_node += 2) {
+            // Set first two nodes wait a little, set the second, 2 and measure the first 2.
+            // Set first two to there next location, wait a second and measure the second.
+            // Repeat the process.
+            temp_data1 = 0;
+            temp_data2 = 0;
+            set_ADC_1_2_node(meas_node+1);
+
+            //SysCtlDelay(10);
+            // Loop the measurements for the SAF
+            for(i = 0; i < saf; i++) {
+                temp_data2 += measure_ADC2();
+                temp_data1 += measure_ADC1();
+                // Add any delay that is desired here.
+            }
+
+            // Average out the data and store it in the provided array.
+            temp_data1 /= saf;
+            temp_data2 /= saf;
+
+            // ToDo: Figure out how I can get this stuff together.
+            data[meas_node] = temp_data1 >> 8;
+            data[meas_node+1] = temp_data1 & 0x00FF;
+            data[back_idx-1] = temp_data2 >> 8;
+            data[back_idx] = temp_data2 & 0x00FF;
+            back_idx -= 2;
+            }
+
+        usb_send(data, 32);
+        back_idx = 31;
+
+    // Run ADC's 3 and 4
+        for(meas_node = 0; meas_node < NUM_MEAS_NODES*2; meas_node+= 2) {
+        // Reset the temp data
+
+
+            set_ADC_3_4_node(meas_node + 1);
+            temp_data1 = 0;
+            temp_data2 = 0;
+
+            // Set the next measurement nodes.
+
+
+            // Add any additional delay required for the second adcs to settle here.
+            // Repeat the above for the second set of adcs.
+            for(i = 0; i < saf; i++) {
+                temp_data1 += measure_ADC4();
+                temp_data2 += measure_ADC3();
+                // Add any needed delay between measurements here.
+            }
+
+            // Average out and store the data in the array.
+            temp_data1 /= saf;
+            temp_data2 /= saf;
+
+            data[meas_node] = temp_data1 >> 8;
+            data[meas_node + 1] = temp_data1 & 0x00FF;
+            data[back_idx - 1] = temp_data2 >> 8;
+            data[back_idx] = temp_data2 & 0x00FF;
+            // Increment the count for the number of elements sent.
+            back_idx -= 2;
+        }
+        usb_send(data, 32);
+        // Loop.
+    }
+
+}
 
 int main(void) {
     //
@@ -651,11 +824,9 @@ int main(void) {
     uint8_t response_out[RESPONSE_SIZE];
     uint8_t hs_in[HS_SIZE];
     uint8_t hs_out[HS_SIZE];
-    uint16_t* data[NUM_MEASUREMENTS];
-    uint8_t* data_responce[DATA_RESPONCE_SIZE];
-
-    data_responce[0] = DATA_PRFX;
-    data_responce[DATA_RESPONCE_SIZE - 3] = DATA_SUFX;
+    uint8_t data[32];
+    //uint16_t test_data[2] = {16384, 19660};
+    //uint8_t test_data2[4];
 
     while(1)
     {
@@ -852,6 +1023,9 @@ int main(void) {
                         else
                         if (instr_in[INSTR_SUFFIX] == CRNTV_SET_SUFX) {
                             if(DAQ_STATUS & SAF_SET) {
+                                // Set up the current value to be used for the whole process.
+                                curr_source_init();
+                                curr_source_set(CURR_VALUE);
                                 CURR_VALUE = instr_in[INSTR_DATA_LSB];
                                 DAQ_STATUS |= CRNTV_SET;
                             }
@@ -922,7 +1096,21 @@ int main(void) {
                         if (instr_in[INSTR_SUFFIX] == START_MEAS_SUFX) {
                             if(DAQ_STATUS & GND_PTRN_SET) {
                                 // call measurement function
-                                measure(CURR_VALUE, SAF, data, inj_pairs, g_ui32SysClock);
+                                // Set up and sound out respone packet
+                                DAQ_STATUS |= START_MEAS_RECEIVED;
+                                usb_send(response_out, RESPONSE_SIZE);
+                                //response_out[RESPONSE_STATUS] = DAQ_STATUS;
+                                response_out[0] = DATA_PRFX;
+                                response_out[1] = DAQ_ID;
+                                usb_send(response_out, 2); // send response packet
+                                // Send out the suffix
+
+                                // call measurement function
+                                measure(SAF, data, inj_pairs);
+
+                                // Send out the prefix
+                                response_out[0] = DATA_SUFX;
+                                usb_send(response_out, 1);
                             }
                             else {
                                 response_out[RESPONSE_ERRORS] = INVALID_INST_ORDER;
@@ -932,29 +1120,8 @@ int main(void) {
                         else {
                             response_out[RESPONSE_ERRORS] = INVALID_INST_SFX;
                         }
-                        // Create the measurements packet
-                        // (may have max size of 128 bytes if so break it into multiple chunks)
-                        // Format PREFIX, Data, SUFIX, DAQID
-                        data_responce[DATA_RESPONCE_SIZE - 2] = DAQ_ID;
-                        int i;
-                        int packet_idx = 1;
-                        uint8_t temp_upper_bits;
-                        uint8_t temp_lower_bits;
-                        for(i = 0; i <= NUM_MEASUREMENTS; i++) {
-                            // Split the data in two parts, upper bits go at i
-                            // lower bits go at i + 1
-                            temp_upper_bits = (uint8_t)((int)data[i] >> 8);
-                            temp_lower_bits = (uint8_t)((int)data[i] & 0x00FF);
-
-                            data_responce[packet_idx] = temp_upper_bits;
-                            data_responce[packet_idx+1] = temp_lower_bits;
-
-                            packet_idx += 2;
-                        }
-
-                        usb_send(response_out, RESPONSE_SIZE); // send response packet
+                         // send response packet
                         // send measurement data as well
-                        usb_send(data_responce, DATA_RESPONCE_SIZE);
                         break;
                     default:
                     {
@@ -967,4 +1134,3 @@ int main(void) {
         }
     }
 }
-
